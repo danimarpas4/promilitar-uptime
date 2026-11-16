@@ -46,7 +46,7 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         shell: bash
         run: |
-          abierto=$(gh issue list --state open --search 'ProMilitar caído in:title' --json number --jq '.[0].number // empty')
+          abierto=$(gh issue list --state open --search 'ProMilitar caido in:title' --json number --jq '.[0].number // empty')
           avisar() {
             if [ -n "${TELEGRAM_TOKEN:-}" ] && [ -n "${TELEGRAM_CHAT_ID:-}" ]; then
               curl -s --max-time 15 -X POST "https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage" \
@@ -56,18 +56,16 @@ jobs:
           }
           if [ -n "$FAILED" ]; then
             if [ -z "$abierto" ]; then
-              gh issue create --title "🔴 ProMilitar caído" --assignee "$GITHUB_REPOSITORY_OWNER" \
-                --body "No responden:$FAILED
-
-Detectado: $(date -u '+%Y-%m-%d %H:%M UTC')" >/dev/null
-              avisar "🔴 ProMilitar CAÍDO:$FAILED"
+              gh issue create --title "ProMilitar caido" --assignee "$GITHUB_REPOSITORY_OWNER" \
+                --body "No responden:$FAILED - Detectado: $(date -u '+%Y-%m-%d %H:%M UTC')" >/dev/null
+              avisar "[CAIDO] ProMilitar no responde:$FAILED"
               exit 1
             fi
             echo "Incidencia ya abierta (#$abierto); no se duplica."
           else
             if [ -n "$abierto" ]; then
               gh issue close "$abierto" --comment "Recuperado $(date -u '+%Y-%m-%d %H:%M UTC')" >/dev/null
-              avisar "🟢 ProMilitar recuperado"
+              avisar "[RECUPERADO] ProMilitar: web y app responden"
             fi
           fi
 
